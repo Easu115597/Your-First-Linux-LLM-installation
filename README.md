@@ -27,15 +27,29 @@ sudo ufw status numbered
  
 
 ### 4. 防毒與惡意程式偵測工具
+安裝並執行 ClamAV 病毒掃描
 sudo apt install clamav clamav-daemon -y
 
 sudo freshclam # 病毒庫更新
+sudo systemctl enable --now clamav-freshclam.service # 讓系統自動定時更新病毒庫
 
+clamscan --version #確認病毒庫版本
+sudo clamscan -r /
+
+使用 Linux Malware Detect (LMD)
 sudo apt install linux-malware-detect -y
 
 sudo maldet -u # LMD 病毒庫更新
 
- 
+檢查 rootkit
+
+sudo apt install rkhunter chkrootkit
+
+sudo rkhunter --check
+
+sudo chkrootkit
+
+#這些工具可以幫助定位常見的 Linux 惡意程式和木馬。
 
 ### 5. IDS/IPS 基礎（選用 snort/suricata）
 sudo apt install snort -y
@@ -102,6 +116,7 @@ sudo apt install fcitx5 fcitx5-configtool fcitx5-table-extra
 sudo apt install fcitx5-table-boshiamy
 
 sudo apt install fcitx fcitx-table fcitx-table-zhuyin -y
+
 #設定環境變數讓系統識別 Fcitx 輸入法：
 
 #編輯 /etc/environment 或用戶家目錄下的環境設定檔，加入：
@@ -110,6 +125,10 @@ sudo apt install fcitx fcitx-table fcitx-table-zhuyin -y
 GTK_IM_MODULE=fcitx
 QT_IM_MODULE=fcitx
 XMODIFIERS=@im=fcitx
+
+登出重新登入，或重啟系統，使設定生效。
+
+使用 Fcitx 配置工具（如 fcitx5-configtool）在輸入法列表中加入「嘸蝦米（boshiamy）」輸入法即可使用。
 
 ### 16. 遠端 xrdp 用於本地遠端桌面
 sudo apt install xrdp -y
