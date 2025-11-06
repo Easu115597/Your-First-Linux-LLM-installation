@@ -28,8 +28,11 @@ sudo ufw status numbered
 
 ### 4. 防毒與惡意程式偵測工具
 sudo apt install clamav clamav-daemon -y
+
 sudo freshclam # 病毒庫更新
+
 sudo apt install linux-malware-detect -y
+
 sudo maldet -u # LMD 病毒庫更新
 
  
@@ -101,7 +104,9 @@ sudo apt install fcitx fcitx-table fcitx-table-zhuyin -y
 
 ### 16. 遠端 xrdp 用於本地遠端桌面
 sudo apt install xrdp -y
+
 sudo systemctl enable xrdp
+
 sudo ufw allow 3389/tcp # 本機用(勿對外開放)
 
  
@@ -109,8 +114,11 @@ sudo ufw allow 3389/tcp # 本機用(勿對外開放)
 
 ### 17. Cloudflare Tunnel（如需）
 wget -O cloudflared https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64
+
 chmod +x cloudflared
+
 sudo mv cloudflared /usr/local/bin/
+
 cloudflared tunnel login
 
  
