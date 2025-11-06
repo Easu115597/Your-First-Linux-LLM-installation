@@ -15,9 +15,13 @@ sudo apt install build-essential curl wget git vim htop tmux rsync zsh ufw -y
 
 ### 3. 防火牆設定（UFW 為例）
 sudo ufw default deny incoming
+
 sudo ufw default allow outgoing
+
 sudo ufw allow ssh
+
 sudo ufw enable
+
 sudo ufw status numbered
 
  
