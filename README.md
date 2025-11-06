@@ -97,10 +97,19 @@ sudo apt install terminator -y
  
 
 ### 15. Fcitx 輸入法平台與嘸蝦米
-sudo apt install fcitx fcitx-table fcitx-table-zhuyin -y
+sudo apt install fcitx5 fcitx5-configtool fcitx5-table-extra
 
-嘸蝦米需額外下載表格/engine，依官方步驟安裝
- 
+sudo apt install fcitx5-table-boshiamy
+
+sudo apt install fcitx fcitx-table fcitx-table-zhuyin -y
+#設定環境變數讓系統識別 Fcitx 輸入法：
+
+#編輯 /etc/environment 或用戶家目錄下的環境設定檔，加入：
+
+
+GTK_IM_MODULE=fcitx
+QT_IM_MODULE=fcitx
+XMODIFIERS=@im=fcitx
 
 ### 16. 遠端 xrdp 用於本地遠端桌面
 sudo apt install xrdp -y
