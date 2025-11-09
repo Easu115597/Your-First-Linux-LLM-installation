@@ -36,10 +36,33 @@ sudo systemctl enable --now clamav-freshclam.service # 讓系統自動定時更�
 clamscan --version #確認病毒庫版本
 sudo clamscan -r /
 
-使用 Linux Malware Detect (LMD)
-sudo apt install linux-malware-detect -y
+使用/安裝 Linux Malware Detect (LMD)流程
 
-sudo maldet -u # LMD 病毒庫更新
+更新系統＋安裝 wget 壓縮工具
+
+bash
+sudo apt update && sudo apt upgrade -y
+sudo apt install wget tar -y
+下載官方原始碼套件
+
+bash
+wget http://www.rfxn.com/downloads/maldetect-current.tar.gz
+解壓縮安裝包並安裝
+
+bash
+tar -zxvf maldetect-current.tar.gz
+cd maldetect-*
+sudo ./install.sh
+驗證安裝並更新病毒庫
+
+bash
+maldet --version
+sudo maldet -u
+後續使用範例
+全盤掃描
+
+bash
+sudo maldet -a /
 
 檢查 rootkit
 
