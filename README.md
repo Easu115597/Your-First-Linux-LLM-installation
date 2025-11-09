@@ -188,36 +188,42 @@ cloudflared tunnel login
 ---
 ###NVIDIA 顯卡驅動
 查詢系統可用 NVIDIA 驅動版本
-bash
+
 sudo apt update
+
 sudo ubuntu-drivers devices
+
 會顯示建議 (recommended) 驅動版本。
 
 2. 安裝推薦驅動（自動；或手動指定版本）
-bash
+
 sudo ubuntu-drivers autoinstall
+
 # 如要手動指定版本
+
 sudo apt install nvidia-driver-XXX
+
 （XXX 請用查到的版本號，如 535、550）
 
-3. 驗證驅動安裝完成
+3. 驗證驅動安裝完成 
 重開機後，執行：
 
-bash
 nvidia-smi
-會顯示 GPU 資訊才算驅動正確裝好。
+
+顯示 GPU 資訊才算驅動正確裝好。
 
 4. 可再安裝 CUDA Toolkit 等延伸（如要用 PyTorch, vLLM, CUDA 環境）
 例如安裝 CUDA 12.2：
 
-bash
 sudo apt install nvidia-cuda-toolkit
+
 若需最新版可依官方指令下載 keyring 或用 runfile 安裝。
 
 5. Docker GPU 支援（如你要用 docker 跑 AI）
+
 還需安裝 nvidia-docker：
 
-bash
+
 curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | \
   sudo apt-key add -
 distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
@@ -226,9 +232,9 @@ curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.li
 sudo apt update
 sudo apt install -y nvidia-docker2
 sudo systemctl restart docker
+
 之後即可用：
 
-bash
 sudo docker run --gpus all nvidia/cuda:12.2.0-base nvidia-smi
 
 
