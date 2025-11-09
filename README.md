@@ -73,8 +73,11 @@ sudo apt install nodejs npm -y
 ### 8. Qdrant本地安裝  
 docker run -d --name qdrant -p 6333:6333 qdrant/qdrant
 
- 
-> 或參考 Qdrant 官網說明安裝到本機
+**如安裝有問題，(permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock)
+把你的帳號加入 docker group
+ sudo usermod -aG docker $USER
+
+之後登出後再新運行docker run
 
 ### 9. Ollama (本地 LLM)
 參考[Ollama官網](https://ollama.com/download)或：
