@@ -1,14 +1,15 @@
-Mem0ai 全域安裝與多帳號共用部署指南 (Linux)
-本指南介紹如何在 Linux 伺服器上建置一套可供多個系統帳號共用的 Mem0ai 環境，包含本地向量資料庫 (Qdrant)、LLM (Ollama) 以及 HuggingFace 模型快取共享。
-📋 前置需求
-作業系統：Ubuntu / Debian (建議)
-Python 版本：3.8+ (建議 3.12+)
-具備 sudo 權限
-已安裝 Docker
-1. 系統依賴安裝
-安裝 Python 基礎組件與虛擬環境支援。
 code
-Bash
+Markdown
+# Mem0ai 全域安裝與多帳號共用部署指南 (Linux)
+
+本指南介紹如何在 Linux 伺服器上建置一套可供多個系統帳號共用的 Mem0ai 環境。
+
+---
+
+## 1. 系統依賴安裝
+安裝 Python 基礎組件與虛擬環境支援。
+
+```bash
 sudo apt update
 sudo apt install -y python3 python3-pip python3-venv
 2. 建立共享虛擬環境 (Virtual Env)
@@ -22,9 +23,8 @@ sudo python3 -m venv /opt/mem0-venv
 # 設定權限：讓 users 群組成員具備讀寫權限
 sudo chown -R root:users /opt/mem0-venv
 sudo chmod -R 0775 /opt/mem0-venv
-
-# 提示：請確保需要使用的帳號已加入 users 群組
-# sudo usermod -aG users <your_username>
+提示： 請確保需要使用的帳號已加入 users 群組：
+sudo usermod -aG users <your_username>
 3. 安裝 Mem0ai 與核心套件
 進入環境並安裝必要依賴。
 code
@@ -47,7 +47,7 @@ sudo docker run -d \
   --restart unless-stopped \
   qdrant/qdrant
 5. 配置 Ollama (本地 LLM Server)
-配置模型共享路徑，避免每個使用者重複下載巨大的模型檔。
+配置模型共享路徑，避免每個使用者重複下載模型。
 code
 Bash
 # 安裝 Ollama
@@ -74,7 +74,7 @@ sudo chmod 0775 /opt/huggingface
 echo "HF_HOME=/opt/huggingface" | sudo tee -a /etc/environment
 export HF_HOME=/opt/huggingface
 7. 建立 Mem0ai 全域配置文件
-建立 /opt/mem0_config/mem0_config.yaml。
+請手動建立檔案 /opt/mem0_config/mem0_config.yaml 並貼入以下內容：
 code
 Yaml
 version: v1.1
@@ -94,7 +94,7 @@ embedder:
   config:
     model: all-MiniLM-L6-v2
 8. 使用範例與測試
-任何使用者只需進入虛擬環境，即可調用同一套記憶服務。
+任何使用者只需進入虛擬環境，即可調用同一套服務。
 範例程式碼 test_mem.py：
 code
 Python
@@ -115,8 +115,8 @@ code
 Bash
 source /opt/mem0-venv/bin/activate
 python test_mem.py
-⚠️ 常見問題與注意事項 (Troubleshooting)
-權限錯誤：若使用者執行時出現 Permission denied，請檢查其是否已加入 users 群組，並確認 /opt/ 下相關目錄的 G+w (群組寫入) 權限是否正確。
-變數生效：修改 /etc/environment 後，若 echo $HF_HOME 沒有輸出，請執行 source /etc/environment 或重新登入 SSH。
-向量維度：若更換 embedder 模型，請先清空 Qdrant collection 或更改 collection_name，因為不同模型的向量維度 (Dimension) 不相容。
-Docker 權限：確保使用者有權限執行 Docker 命令，或將使用者加入 docker 群組。
+⚠️ 常見問題 (Troubleshooting)
+權限錯誤：若出現 Permission denied，請檢查使用者是否在 users 群組，並確認目錄權限為 0775。
+變數生效：修改 /etc/environment 後，需重啟 Terminal 或執行 source /etc/environment。
+向量維度：若更換 Embedder 模型，需清空 Qdrant collection 否則會因維度不符報錯。
+最後更新日期: 2025-12-19
