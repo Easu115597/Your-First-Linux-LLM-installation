@@ -12,7 +12,7 @@ sudo apt update
 sudo apt install -y python3 python3-pip python3-venv
 
 
-2. 建立共享虛擬環境 (Virtual Env)
+##2. 建立共享虛擬環境 (Virtual Env)
 將虛擬環境置於 /opt 下，並透過群組權限管理讓所有開發者皆可使用。
 code
 Bash
@@ -26,7 +26,7 @@ sudo chmod -R 0775 /opt/mem0-venv
 提示： 請確保需要使用的帳號已加入 users 群組：
 sudo usermod -aG users <your_username>
 
-3. 安裝 Mem0ai 與核心套件
+##3. 安裝 Mem0ai 與核心套件
 進入環境並安裝必要依賴。
 code
 Bash
@@ -35,7 +35,7 @@ pip install --upgrade pip
 pip install mem0ai sentence-transformers qdrant-client
 deactivate
 
-4. 部署 Qdrant 向量資料庫
+##4. 部署 Qdrant 向量資料庫
 使用 Docker 啟動，並將資料持久化於共享目錄。
 code
 Bash
@@ -49,7 +49,7 @@ sudo docker run -d \
   --restart unless-stopped \
   qdrant/qdrant
 
-5. 配置 Ollama (本地 LLM Server)
+##5. 配置 Ollama (本地 LLM Server)
 配置模型共享路徑，避免每個使用者重複下載模型。
 code
 Bash
@@ -67,7 +67,7 @@ export OLLAMA_MODELS=/opt/ollama_models
 # 拉取預設模型
 ollama pull llama3.1:8b
 
-6. 配置 HuggingFace 共享目錄
+##6. 配置 HuggingFace 共享目錄
 用於存放 sentence-transformers 等嵌入模型。
 code
 Bash
@@ -78,7 +78,7 @@ sudo chmod 0775 /opt/huggingface
 echo "HF_HOME=/opt/huggingface" | sudo tee -a /etc/environment
 export HF_HOME=/opt/huggingface
 
-7. 建立 Mem0ai 全域配置文件
+##7. 建立 Mem0ai 全域配置文件
 請手動建立檔案 /opt/mem0_config/mem0_config.yaml 並貼入以下內容：
 code
 Yaml
@@ -99,7 +99,7 @@ embedder:
   config:
     model: all-MiniLM-L6-v2
 
-8. 使用範例與測試
+##8. 使用範例與測試
 任何使用者只需進入虛擬環境，即可調用同一套服務。
 範例程式碼 test_mem.py：
 code
@@ -122,7 +122,7 @@ Bash
 source /opt/mem0-venv/bin/activate
 python test_mem.py
 
-⚠️ 常見問題 (Troubleshooting)
+##⚠️ 常見問題 (Troubleshooting)
 權限錯誤：若出現 Permission denied，請檢查使用者是否在 users 群組，並確認目錄權限為 0775。
 變數生效：修改 /etc/environment 後，需重啟 Terminal 或執行 source /etc/environment。
 向量維度：若更換 Embedder 模型，需清空 Qdrant collection 否則會因維度不符報錯。
