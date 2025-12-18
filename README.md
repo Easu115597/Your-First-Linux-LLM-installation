@@ -240,3 +240,28 @@ sudo docker run --gpus all nvidia/cuda:12.2.0-base nvidia-smi
 
 備註：
 如有專案（mem0、AnythingLLM、Ollama、Qdrant）需進行設定，請於「AI工具」區段參考其官方 README，統一建議用 docker 或 Python venv 隔離。
+
+
+
+
+
+建立 vLLM 專用環境
+請執行以下指令，將基礎設施與應用邏輯分開：
+code
+Bash
+# 1. 離開當前環境 (若已進入)
+deactivate 2>/dev/null
+
+# 2. 建立 vllm 專用目錄與虛擬環境
+mkdir -p ~/vllm_server
+cd ~/vllm_server
+python3 -m venv venv-vllm
+
+# 3. 啟動新環境
+source venv-vllm/bin/activate
+
+# 4. 安裝 vLLM (這會拉取它專屬的 PyTorch 版本，不影響原本的 mem0 環境)
+pip install --upgrade pip
+pip install vllm
+
+pip install openai
