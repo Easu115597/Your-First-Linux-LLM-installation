@@ -1,63 +1,89 @@
-Mem0ai 安裝全手順（Linux, 多帳號共用模式）
-1. 安裝 Python（建議系統預設已安裝，建議 3.8 以上版本）
-bash
+Mem0ai 全域安裝與多帳號共用部署指南 (Linux)
+本指南介紹如何在 Linux 伺服器上建置一套可供多個系統帳號共用的 Mem0ai 環境，包含本地向量資料庫 (Qdrant)、LLM (Ollama) 以及 HuggingFace 模型快取共享。
+📋 前置需求
+作業系統：Ubuntu / Debian (建議)
+Python 版本：3.8+ (建議 3.12+)
+具備 sudo 權限
+已安裝 Docker
+1. 系統依賴安裝
+安裝 Python 基礎組件與虛擬環境支援。
+code
+Bash
 sudo apt update
-sudo apt install python3 python3-pip python3-venv
-（如 Python 3.12+ 建議用 venv 虛擬環境；如多帳號共用，建議創建在 /opt 下）
-
-2. 建立共享型虛擬環境 venv（所有帳號皆可使用）
-bash
+sudo apt install -y python3 python3-pip python3-venv
+2. 建立共享虛擬環境 (Virtual Env)
+將虛擬環境置於 /opt 下，並透過群組權限管理讓所有開發者皆可使用。
+code
+Bash
+# 建立目錄
 sudo mkdir -p /opt/mem0-venv
 sudo python3 -m venv /opt/mem0-venv
+
+# 設定權限：讓 users 群組成員具備讀寫權限
 sudo chown -R root:users /opt/mem0-venv
 sudo chmod -R 0775 /opt/mem0-venv
-加入共用群組 users（將所有用戶都加入該群組）
 
-3. 安裝 Mem0ai 及相關依賴（在 venv 內執行）
-bash
+# 提示：請確保需要使用的帳號已加入 users 群組
+# sudo usermod -aG users <your_username>
+3. 安裝 Mem0ai 與核心套件
+進入環境並安裝必要依賴。
+code
+Bash
 source /opt/mem0-venv/bin/activate
 pip install --upgrade pip
 pip install mem0ai sentence-transformers qdrant-client
 deactivate
-＊若 HuggingFace 其它套件依需求追加安裝。
-
-4. 部署 Qdrant（本地向量資料庫）
-bash
+4. 部署 Qdrant 向量資料庫
+使用 Docker 啟動，並將資料持久化於共享目錄。
+code
+Bash
 sudo mkdir -p /opt/qdrant_data
 sudo chmod 0775 /opt/qdrant_data
+
 sudo docker run -d \
+  --name qdrant \
   -p 6333:6333 \
   -v /opt/qdrant_data:/qdrant/storage \
-  --restart=unless-stopped \
+  --restart unless-stopped \
   qdrant/qdrant
-＊所有帳號只要能存取 6333 port，皆可用同一資料目錄。
-
-5. 安裝及配置 Ollama（本地 LLM server + 模型快取共用）
-bash
+5. 配置 Ollama (本地 LLM Server)
+配置模型共享路徑，避免每個使用者重複下載巨大的模型檔。
+code
+Bash
+# 安裝 Ollama
 curl -fsSL https://ollama.com/install.sh | sh
-# 建共用模型快取
+
+# 建立共用快取路徑
 sudo mkdir -p /opt/ollama_models
 sudo chmod 0775 /opt/ollama_models
-echo "OLLAMA_MODELS_PATH=/opt/ollama_models" | sudo tee -a /etc/environment
-ollama pull llama3.1:8b
-（如需多模型，可重複拉取；OLLAMA啟動後自動開啟本地 11434 port ）
 
-6. HuggingFace模型快取共用（句子嵌入）
-bash
+# 設定環境變數 (寫入全域配置)
+echo "OLLAMA_MODELS=/opt/ollama_models" | sudo tee -a /etc/environment
+export OLLAMA_MODELS=/opt/ollama_models
+
+# 拉取預設模型
+ollama pull llama3.1:8b
+6. 配置 HuggingFace 共享目錄
+用於存放 sentence-transformers 等嵌入模型。
+code
+Bash
 sudo mkdir -p /opt/huggingface
 sudo chmod 0775 /opt/huggingface
-echo "HF_HOME=/opt/huggingface" | sudo tee -a /etc/environment
-7. 建立並配置 Mem0ai config（建議放在 /opt/mem0_config 或 /etc/mem0）
-/opt/mem0_config/mem0_config.yaml（範本）
 
-text
+# 設定環境變數
+echo "HF_HOME=/opt/huggingface" | sudo tee -a /etc/environment
+export HF_HOME=/opt/huggingface
+7. 建立 Mem0ai 全域配置文件
+建立 /opt/mem0_config/mem0_config.yaml。
+code
+Yaml
+version: v1.1
 vector_store:
   provider: qdrant
   config:
     host: localhost
     port: 6333
     collection_name: memories
-    path: /opt/qdrant_data
 llm:
   provider: ollama
   config:
@@ -67,31 +93,30 @@ embedder:
   provider: sentence-transformers
   config:
     model: all-MiniLM-L6-v2
-    cache_dir: /opt/huggingface
-version: v1.1
-8. 管理多帳號共用權限
-所有資料目錄（Qdrant, Ollama, HuggingFace）都設 0775，群組要包含所有使用者。
-
-各帳號執行前 source /opt/mem0-venv/bin/activate，即可共用虛擬環境及所有安裝套件。
-
-9. 測試安裝及功能
-main.py 範例：
-
-python
+8. 使用範例與測試
+任何使用者只需進入虛擬環境，即可調用同一套記憶服務。
+範例程式碼 test_mem.py：
+code
+Python
 from mem0 import Memory
 
-memory = Memory.from_config('/opt/mem0_config/mem0_config.yaml')
+# 載入共用配置
+config_path = '/opt/mem0_config/mem0_config.yaml'
+memory = Memory.from_config(config_path)
 
-memory.add('我是台南人，喜歡 bonsai', user_id='user1')
-res = memory.search('bonsai 植物', user_id='user1', limit=3)
-print(res['results'])
-常見注意/排錯
-pip 安裝遇 error，建議用 venv，避免破壞系統原生 Python。
+# 儲存記憶
+memory.add('我是台南人，喜歡 bonsai', user_id='user_01')
 
-Qdrant, Ollama, HuggingFace 快取路徑都設為共用目錄。
-
-config 權限、embedding model dims 要與本地模型一致。
-
-如遇某帳號讀寫權限問題，確認該用戶權限與群組關聯。
-
-只需依上述步驟，無論有幾個登入帳號都可以共用同一份 Mem0ai 服務與資料，適用本地多用戶/LLM/嵌入/向量共用安全方案。如需擴充 systemd、自動啟動服務、API route、專案結構建議，再追問即可！
+# 檢索記憶
+res = memory.search('該使用者喜歡什麼植物？', user_id='user_01', limit=3)
+print(res)
+執行方式：
+code
+Bash
+source /opt/mem0-venv/bin/activate
+python test_mem.py
+⚠️ 常見問題與注意事項 (Troubleshooting)
+權限錯誤：若使用者執行時出現 Permission denied，請檢查其是否已加入 users 群組，並確認 /opt/ 下相關目錄的 G+w (群組寫入) 權限是否正確。
+變數生效：修改 /etc/environment 後，若 echo $HF_HOME 沒有輸出，請執行 source /etc/environment 或重新登入 SSH。
+向量維度：若更換 embedder 模型，請先清空 Qdrant collection 或更改 collection_name，因為不同模型的向量維度 (Dimension) 不相容。
+Docker 權限：確保使用者有權限執行 Docker 命令，或將使用者加入 docker 群組。
