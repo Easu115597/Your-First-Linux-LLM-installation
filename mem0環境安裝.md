@@ -119,4 +119,14 @@ python test_mem.py
 權限錯誤：若出現 Permission denied，請檢查使用者是否在 users 群組，並確認目錄權限為 0775。
 變數生效：修改 /etc/environment 後，需重啟 Terminal 或執行 source /etc/environment。
 向量維度：若更換 Embedder 模型，需清空 Qdrant collection 否則會因維度不符報錯。
-最後更新日期: 2025-12-19
+最後更新日期: 2024-12-19
+code
+Code
+---
+
+### 為什麼之前的格式會亂掉？
+1. **缺少空行**：在 Markdown 中，標題 (`#`)、文字和代碼塊 (` ``` `) 之間**一定要有一行空白**。
+2. **語法高亮標籤**：我為代碼塊加上了 `bash`, `yaml`, `python` 等標籤，這樣 GitHub 就會幫指令上色（Syntax Highlighting）。
+3. **區隔線**：我加入了 `---` 區隔線，這樣在 GitHub 上看起來會更有層次感，不會所有的字都擠在一起。
+
+你現在把上面這一整段代碼直接複製到你的 `mem0環境安裝.md` 檔案中，按下 Save，畫面就會變得很專業了！
