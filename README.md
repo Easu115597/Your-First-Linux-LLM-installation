@@ -1,267 +1,35 @@
 # Your-First-Linux-LLM-installation
-First Linux LLM installation
-# Linux 安裝手順與環境安全配置指南
 
-## 一、系統基本安裝與安全加固
+Linux 主機、NVIDIA GPU、本地 LLM 與 AI Agent 安裝筆記。
 
-### 1. 更新系統 & 安裝必要工具
-sudo apt update && sudo apt upgrade -y
-sudo apt install build-essential curl wget git vim htop tmux rsync zsh ufw -y
+> **文件狀態**：Ubuntu 26.04 LTS 新文件以本 README 的導覽為準。根目錄舊筆記保留作為歷史參考；其中部分指令（例如舊版 apt-key、nvidia-docker2、系統層級 pip3、未限制來源的服務 port）不應直接套用到新系統。
 
+## Ubuntu 26.04 LTS 建議安裝順序
 
+1. [Ubuntu 26.04 基礎環境](01-system/ubuntu-26.04-baseline.md)
+2. [SSH、防火牆與 Tailscale 遠端管理](01-system/security-and-remote-access.md)
+3. [Docker Engine 與 NVIDIA Container Toolkit](02-container/docker-nvidia-container-toolkit.md)
+4. [Claude Code 安裝與遠端工作流程](03-ai-development/claude-code.md)
+5. [多 GPU 與 vLLM 部署注意事項](04-local-llm/multi-gpu-vllm.md)
 
-### 2. 磁碟加密（乾淨新機建議於安裝時選 LUKS 全磁碟加密）  
-> *建議於安裝作業系統時啟用*
+## 原有文件（保留）
 
-### 3. 防火牆設定（UFW 為例）
-sudo ufw default deny incoming
+- [Mem0 多帳號共用部署筆記](mem0環境安裝.md) — 已更新共享 venv、資料夾權限及服務綁定的安全提醒。
+- [環境安裝（舊版純文字筆記）](環境安裝) — 歷史參考，與上方 Mem0 文件部分重複，不作為 Ubuntu 26.04 的最新安裝指引。
 
-sudo ufw default allow outgoing
+## 通用原則
 
-sudo ufw allow ssh
+- 先確認作業系統、核心、GPU 與驅動版本，再安裝 CUDA／PyTorch／vLLM。
+- 優先使用官方 apt repository、官方安裝文件與隔離的 Python 虛擬環境。
+- Docker Engine 與 NVIDIA Container Toolkit 分開安裝；主機端 nvidia-smi 正常後才測試容器 GPU。
+- 不要將 SSH、RDP、Qdrant、Ollama 或 vLLM API 無條件暴露到公網。
+- 不要把 API key、SSH 私鑰、交易金鑰或 .env 提交到 Git。
+- Agent 與交易程式、錢包、個人資料分開；對刪除、部署、對外訊息及交易保留人工確認。
 
-sudo ufw enable
+## 官方參考
 
-sudo ufw status numbered
-
- 
-
-### 4. 防毒與惡意程式偵測工具
-安裝並執行 ClamAV 病毒掃描
-sudo apt install clamav clamav-daemon -y
-
-sudo freshclam # 病毒庫更新
-sudo systemctl enable --now clamav-freshclam.service # 讓系統自動定時更新病毒庫
-
-clamscan --version #確認病毒庫版本
-sudo clamscan -r /
-
-使用/安裝 Linux Malware Detect (LMD)流程
-
-更新系統＋安裝 wget 壓縮工具
-
-bash
-sudo apt update && sudo apt upgrade -y
-sudo apt install wget tar -y
-下載官方原始碼套件
-
-bash
-wget http://www.rfxn.com/downloads/maldetect-current.tar.gz
-解壓縮安裝包並安裝
-
-bash
-tar -zxvf maldetect-current.tar.gz
-cd maldetect-*
-sudo ./install.sh
-驗證安裝並更新病毒庫
-
-bash
-maldet --version
-sudo maldet -u
-後續使用範例
-全盤掃描
-
-bash
-sudo maldet -a /
-
-檢查 rootkit
-
-sudo apt install rkhunter chkrootkit
-
-sudo rkhunter --check
-
-sudo chkrootkit
-
-#這些工具可以幫助定位常見的 Linux 惡意程式和木馬。
-
-### 5. IDS/IPS 基礎（選用 snort/suricata）
-sudo apt install snort -y
-
-或 sudo apt install suricata -y
- 
---- 
-
-## 二、AI/本地 LLM 工具安裝
-
-### 6. Docker & Python 基本環境
-sudo apt install docker.io docker-compose python3 python3-pip -y
-
- 
-
-### 7. Node.js & npm
-sudo apt install nodejs npm -y
-
- 
-
-### 8. Qdrant本地安裝  
-docker run -d --name qdrant -p 6333:6333 qdrant/qdrant
-
-**如安裝有問題，(permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock)
-把你的帳號加入 docker group
- sudo usermod -aG docker $USER
-
-之後登出後再新運行docker run
-
-### 9. Ollama (本地 LLM)
-參考[Ollama官網](https://ollama.com/download)或：
-curl https://ollama.com/install.sh | sh
-
- 
-
-### 10. HuggingFace sentence-transformers
-pip3 install sentence-transformers
-
- 
-
-### 11. mem0 / AnythingLLM / Void / LM Studio
-參考各專案 README，建議以 docker 或 python venv 部署。
-
---- 
-## 三、桌面、中文輸入法與遠端功能
-
-### 12. 桌面環境 (GNOME/XFCE等)
-sudo apt install xfce4 xfce4-goodies -y
-
- 
-
-### 13. Google Chrome
-至 [Chrome官網](https://www.google.com/chrome/) 下載 deb 檔，或：
-wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-sudo apt install ./google-chrome-stable_current_amd64.deb
-
- 
-
-### 14. Terminator 終端分割視窗
-sudo apt install terminator -y
-
- 
-
-### 15. Fcitx 輸入法平台與嘸蝦米
-sudo apt install fcitx5 fcitx5-configtool fcitx5-table-extra
-
-sudo apt install fcitx5-table-boshiamy
-
-sudo apt install fcitx fcitx-table fcitx-table-zhuyin -y
-
-#設定環境變數讓系統識別 Fcitx 輸入法：
-
-#編輯 /etc/environment 或用戶家目錄下的環境設定檔，加入：
-
-
-GTK_IM_MODULE=fcitx
-QT_IM_MODULE=fcitx
-XMODIFIERS=@im=fcitx
-
-登出重新登入，或重啟系統，使設定生效。
-
-使用 Fcitx 配置工具（如 fcitx5-configtool）在輸入法列表中加入「嘸蝦米（boshiamy）」輸入法即可使用。
-
-### 16. 遠端 xrdp 用於本地遠端桌面
-sudo apt install xrdp -y
-
-sudo systemctl enable xrdp
-
-sudo ufw allow 3389/tcp # 本機用(勿對外開放)
-
- 
-> 非常建議搭配 VPN/Cloudflared Tunnel，也可考慮只開啟 SSH 隧道穿透。
-
-### 17. Cloudflare Tunnel（如需）
-wget -O cloudflared https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64
-
-chmod +x cloudflared
-
-sudo mv cloudflared /usr/local/bin/
-
-cloudflared tunnel login
-
- 
-> 詳細串接 xrdp/VNC/SSH 請參考 Cloudflare Tunnel 文件。
-
----
-
-## 四、補充維運工具
-
-- VLAN/網路規劃（由 UniFi 控管）
-- backup tools: Timeshift, rsync
-
----
-###NVIDIA 顯卡驅動
-查詢系統可用 NVIDIA 驅動版本
-
-sudo apt update
-
-sudo ubuntu-drivers devices
-
-會顯示建議 (recommended) 驅動版本。
-
-2. 安裝推薦驅動（自動；或手動指定版本）
-
-sudo ubuntu-drivers autoinstall
-
-# 如要手動指定版本
-
-sudo apt install nvidia-driver-XXX
-
-（XXX 請用查到的版本號，如 535、550）
-
-3. 驗證驅動安裝完成 
-重開機後，執行：
-
-nvidia-smi
-
-顯示 GPU 資訊才算驅動正確裝好。
-
-4. 可再安裝 CUDA Toolkit 等延伸（如要用 PyTorch, vLLM, CUDA 環境）
-例如安裝 CUDA 12.2：
-
-sudo apt install nvidia-cuda-toolkit
-
-若需最新版可依官方指令下載 keyring 或用 runfile 安裝。
-
-5. Docker GPU 支援（如你要用 docker 跑 AI）
-
-還需安裝 nvidia-docker：
-
-
-curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | \
-  sudo apt-key add -
-distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
-curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | \
-  sudo tee /etc/apt/sources.list.d/nvidia-docker.list
-sudo apt update
-sudo apt install -y nvidia-docker2
-sudo systemctl restart docker
-
-之後即可用：
-
-sudo docker run --gpus all nvidia/cuda:12.2.0-base nvidia-smi
-
-
-備註：
-如有專案（mem0、AnythingLLM、Ollama、Qdrant）需進行設定，請於「AI工具」區段參考其官方 README，統一建議用 docker 或 Python venv 隔離。
-
-
-
-
-
-建立 vLLM 專用環境
-請執行以下指令，將基礎設施與應用邏輯分開：
-code
-Bash
-# 1. 離開當前環境 (若已進入)
-deactivate 2>/dev/null
-
-# 2. 建立 vllm 專用目錄與虛擬環境
-mkdir -p ~/vllm_server
-cd ~/vllm_server
-python3 -m venv venv-vllm
-
-# 3. 啟動新環境
-source venv-vllm/bin/activate
-
-# 4. 安裝 vLLM (這會拉取它專屬的 PyTorch 版本，不影響原本的 mem0 環境)
-pip install --upgrade pip
-pip install vllm
-
-pip install openai
+- [Ubuntu 26.04 LTS release notes](https://documentation.ubuntu.com/release-notes/26.04/)
+- [Docker Engine installation](https://docs.docker.com/engine/install/ubuntu/)
+- [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/)
+- [Claude Code documentation](https://code.claude.com/docs/en/)
+- [vLLM documentation](https://docs.vllm.ai/en/latest/)
