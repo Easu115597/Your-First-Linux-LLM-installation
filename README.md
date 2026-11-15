@@ -2,7 +2,7 @@
 
 Linux 主機、NVIDIA GPU、本地 LLM 與 AI Agent 安裝筆記。
 
-> **文件狀態**：Ubuntu 26.04 LTS 新文件以本 README 的導覽為準。根目錄舊筆記保留作為歷史參考；其中部分指令（例如舊版 apt-key、nvidia-docker2、系統層級 pip3、未限制來源的服務 port）不應直接套用到新系統。
+> **文件狀態**：Ubuntu 26.04 LTS 新文件以本 README 的導覽為準。根目錄舊筆記已封存至 legacy/，保留作為歷史參考；其中部分指令（例如舊版 apt-key、nvidia-docker2、系統層級 pip3、未限制來源的服務 port）不應直接套用到新系統。
 
 ## Ubuntu 26.04 LTS 建議安裝順序
 
@@ -16,8 +16,10 @@ Linux 主機、NVIDIA GPU、本地 LLM 與 AI Agent 安裝筆記。
 
 ## 原有文件（保留）
 
-- [Mem0 多帳號共用部署筆記](mem0環境安裝.md) — 已更新共享 venv、資料夾權限及服務綁定的安全提醒。
-- [環境安裝（舊版純文字筆記）](環境安裝) — 歷史參考，與上方 Mem0 文件部分重複，不作為 Ubuntu 26.04 的最新安裝指引。
+- [Mem0 多帳號共用部署筆記](mem0環境安裝.md) — 更新過權限、虛擬環境及服務綁定的安全提醒。
+- [舊版 Linux 安裝手順](legacy/README-legacy.md) — 原 README 內容封存，包含桌面、輸入法、遠端桌面、ClamAV、NVIDIA 與 vLLM 舊筆記。
+- [舊版 Mem0 部署筆記](legacy/mem0-legacy.md) — 原始多帳號部署內容封存。
+- [環境安裝（舊版純文字筆記）](環境安裝) — 原檔保留，與 Mem0 文件部分重複，不作為 Ubuntu 26.04 最新指引。
 
 ## 通用原則
 
