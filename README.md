@@ -9,8 +9,10 @@ Linux 主機、NVIDIA GPU、本地 LLM 與 AI Agent 安裝筆記。
 1. [Ubuntu 26.04 基礎環境](01-system/ubuntu-26.04-baseline.md)
 2. [SSH、防火牆與 Tailscale 遠端管理](01-system/security-and-remote-access.md)
 3. [Docker Engine 與 NVIDIA Container Toolkit](02-container/docker-nvidia-container-toolkit.md)
-4. [Claude Code 安裝與遠端工作流程](03-ai-development/claude-code.md)
-5. [多 GPU 與 vLLM 部署注意事項](04-local-llm/multi-gpu-vllm.md)
+4. [Python 專案環境：uv](03-ai-development/python-uv.md)
+5. [Claude Code 安裝與遠端工作流程](03-ai-development/claude-code.md)
+6. [AI Agent 長時間工作與多 Agent 隔離](03-ai-development/agent-operations.md)
+7. [多 GPU 與 vLLM 部署注意事項](04-local-llm/multi-gpu-vllm.md)
 
 ## 原有文件（保留）
 
